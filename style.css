@@ -1,0 +1,42 @@
+#game {
+    width: 600px;
+    height: 200px;
+    border: 1px solid black;
+    margin: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+#dino {
+    width: 50px;
+    height: 50px;
+    background-color: green;
+    position: absolute;
+    bottom: 0;
+}
+
+#cactus {
+    width: 20px;
+    height: 40px;
+    background-color: red;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+#score {
+    text-align: center;
+    font-size: 24px;
+    margin-top: 20px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+canvas {
+    display: block;
+    margin: 0 auto;
+    background-color: #f7f7f7;
+    border: 1px solid #ccc;
+}
