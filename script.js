@@ -2,13 +2,54 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 let trexImage = new Image();
+let rockImage = new Image();
+let cactusImage = new Image();
+let imagesLoaded = 0;
+const requiredImages = 3;
+
+function startGame() {
+    requestAnimationFrame(gameLoop);
+}
+
+// Add load handlers for both images
+trexImage.onload = function() {
+    imagesLoaded++;
+    if (imagesLoaded === requiredImages) startGame();
+};
+
+rockImage.onload = function() {
+    imagesLoaded++;
+    if (imagesLoaded === requiredImages) startGame();
+};
+
+cactusImage.onload = function() {
+    imagesLoaded++;
+    if (imagesLoaded === requiredImages) startGame();
+};
+
+// Set image sources after defining onload handlers
 trexImage.src = 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Chromium_T-Rex-error-offline.svg';
+rockImage.src = 'images/rock.jpg';
+cactusImage.src = 'images/cactus.jpg';
+
+// Optional: Add error handlers for the images
+rockImage.onerror = function() {
+    console.error('Error loading rock image');
+};
+
+trexImage.onerror = function() {
+    console.error('Error loading T-Rex image');
+};
+
+cactusImage.onerror = function() {
+    console.error('Error loading cactus image');
+};
 
 let trex = {
     x: 50,
-    y: 260,
-    width: 40,
-    height: 40,
+    y: 240,
+    width: 60,
+    height: 60,
     velocityY: 0,
     gravity: 0.9,
     isJumping: false
@@ -34,7 +75,7 @@ document.addEventListener('touchstart', function () {
 
 function jump() {
     trex.isJumping = true;
-    trex.velocityY = -15;
+    trex.velocityY = -18.75;
 }
 
 function update() {
@@ -44,19 +85,44 @@ function update() {
     trex.velocityY += trex.gravity;
     trex.y += trex.velocityY;
 
-    if (trex.y >= 260) {
-        trex.y = 260;
+    // Floor collision detection
+    if (trex.y >= 240) {
+        trex.y = 240;
         trex.isJumping = false;
         trex.velocityY = 0;
     }
 
-    // Spawn obstacles
-    if (frameCount % 150 === 0) {
+    // Spawn obstacles - modified section
+    const minDistanceBetweenObstacles = 200;
+    let canSpawnObstacle = true;
+
+    // Check if any existing obstacle is too close
+    obstacles.forEach(obstacle => {
+        if (obstacle.x > canvas.width - minDistanceBetweenObstacles) {
+            canSpawnObstacle = false;
+        }
+    });
+
+    // Spawn rocks
+    if (canSpawnObstacle && frameCount % (Math.floor(Math.random() * 100) + 100) === 0) {
         let obstacle = {
             x: canvas.width,
-            y: 270,
-            width: 30,
-            height: 30
+            y: 260,
+            width: 40,
+            height: 40,
+            type: 'rock'
+        };
+        obstacles.push(obstacle);
+    }
+
+    // Spawn cacti at different intervals
+    if (canSpawnObstacle && frameCount % (Math.floor(Math.random() * 150) + 150) === 0) {
+        let obstacle = {
+            x: canvas.width,
+            y: 245,  // Slightly higher placement
+            width: 40,
+            height: 55,  // Taller than rocks
+            type: 'cactus'
         };
         obstacles.push(obstacle);
     }
@@ -93,9 +159,9 @@ function draw() {
     ctx.drawImage(trexImage, trex.x, trex.y, trex.width, trex.height);
 
     // Draw obstacles
-    ctx.fillStyle = '#555';
     obstacles.forEach(obstacle => {
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        const image = obstacle.type === 'rock' ? rockImage : cactusImage;
+        ctx.drawImage(image, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
     });
 
     // Draw score
@@ -120,4 +186,4 @@ function gameLoop() {
     }
 }
 
-requestAnimationFrame(gameLoop);
+startGame();
